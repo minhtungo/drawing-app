@@ -10,15 +10,29 @@ export const useDraw = (
 
   const onMouseDown = () => setMouseDown(true);
 
+  const clear = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvasRef.current?.getContext('2d');
+
+    if(!ctx) return;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
+      if (!mouseDown) {
+        return;
+      }
       const currentPoint = computePointInCanvas(e);
 
       const ctx = canvasRef.current?.getContext('2d');
       if (!ctx || !currentPoint) return;
 
-      onDraw({ctx, currentPoint, prevPoint: prevPoint.current});
-      prevPoint.current = currentPoint
+      onDraw({ ctx, currentPoint, prevPoint: prevPoint.current });
+      prevPoint.current = currentPoint;
     };
 
     const computePointInCanvas = (e: MouseEvent) => {
@@ -33,12 +47,17 @@ export const useDraw = (
     };
     //Add event listeners
     canvasRef.current?.addEventListener('mousemove', handler);
+    window.addEventListener('mouseup', () => {
+      setMouseDown(false);
+      prevPoint.current = null;
+    });
 
     return () => {
       //Remove event listeners on cleanup
       canvasRef.current?.removeEventListener('mousemove', handler);
+      window.removeEventListener('mouseup', () => setMouseDown(false));
     };
-  }, []);
+  }, [onDraw]);
 
-  return { canvasRef, onMouseDown };
+  return { canvasRef, onMouseDown, clear };
 };
