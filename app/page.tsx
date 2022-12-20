@@ -7,7 +7,7 @@ import { useDraw } from '../hooks/useDraw';
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
-  const { canvasRef } = useDraw(drawLine);
+  const { canvasRef, onMouseDown } = useDraw(drawLine);
 
   function drawLine({ prevPoint, currentPoint, ctx }: Draw) {
     const { x: currX, y: currY } = currentPoint;
@@ -31,6 +31,7 @@ export default function Home() {
   return (
     <div className='w-screen h-screen bg-white flex justify-center items-center'>
       <canvas
+        onMouseDown={onMouseDown}
         ref={canvasRef}
         width={750}
         height={750}

@@ -1,15 +1,24 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export const useDraw = (
   onDraw: ({ ctx, currentPoint, prevPoint }: Draw) => void
 ) => {
+  const [mouseDown, setMouseDown] = useState(false);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const prevPoint = useRef<null | Point>(null);
+
+  const onMouseDown = () => setMouseDown(true);
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const currentPoint = computePointInCanvas(e);
 
       const ctx = canvasRef.current?.getContext('2d');
       if (!ctx || !currentPoint) return;
+
+      onDraw({ctx, currentPoint, prevPoint: prevPoint.current});
+      prevPoint.current = currentPoint
     };
 
     const computePointInCanvas = (e: MouseEvent) => {
@@ -31,5 +40,5 @@ export const useDraw = (
     };
   }, []);
 
-  return { canvasRef };
+  return { canvasRef, onMouseDown };
 };
